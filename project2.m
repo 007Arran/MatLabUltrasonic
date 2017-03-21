@@ -1,6 +1,7 @@
 % combination lock
 function project2
-    NUM_COMBO_VALUES = 4;
+    NUM_COMBO_VALUES = 6;
+    TIME_BETWEEN_COMBO_VALUES = 1.5;
 
     % setup arduino
     if ~exist('a','var')
@@ -15,10 +16,10 @@ function project2
     configurePin(a, 'D12', 'pullup');
     
     % Start the unlocking sequence
-    main_loop(a, combination, NUM_COMBO_VALUES);
+    main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES);
 end
 
-function main_loop(a, combination, NUM_COMBO_VALUES)
+function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES)
     % Combo is incorrect until it is
     correct_combo = false;
     % Infinite loop for testing at all times
@@ -48,7 +49,7 @@ function main_loop(a, combination, NUM_COMBO_VALUES)
        end
        
        % Setting a new combo
-       new_combo = set_evaluate_combo(a, setting_combo, combination, NUM_COMBO_VALUES);
+       new_combo = set_evaluate_combo(a, setting_combo, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES);
        if new_combo(1) ~= -1 % if the error code is NOT present, set the combo/accept the credentials
            if setting_combo
                combination = new_combo; % set the new combo
@@ -71,12 +72,12 @@ function command_given = read_combo_command(a)
     end
 end
 
-function combination = set_evaluate_combo(a, setting_combo, combination, NUM_COMBO_VALUES)
+function combination = set_evaluate_combo(a, setting_combo, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES)
     % read in the combination/set values
     i = 1;
     correct_combo = true;
     while(i < NUM_COMBO_VALUES + 1)
-        pause(1.5);   
+        pause(TIME_BETWEEN_COMBO_VALUES);   
         voltage = floor(readVoltage(a, 'A0'));
         if setting_combo
             combination(i) = voltage;
