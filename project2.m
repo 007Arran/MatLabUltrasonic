@@ -35,7 +35,7 @@ function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES)
        setting_combo = false;
        % if the user has previously entered a correct combo and holds down the button, choose to set the combo
        if correct_combo  
-           pause(0.1);
+           pause(0.3);
            button_pressed = readDigitalPin(a, 'D12');
            if (button_pressed == 0)
                setting_combo = true;
@@ -112,14 +112,12 @@ function combination = set_evaluate_combo(a, setting_combo, combination, NUM_COM
            sensor = addon(a, 'JRodrigoTech/HCSR04', 'D2', 'D3');
            % Give user 5 seconds to unlock door
            t = 0;
+               
            while t < 12
                % Get distance in inches
                mDist = readTravelTime(sensor);
                mDist = (mDist*340)/2; % distance in meters
                distIN = mDist/.0254; % distance in inches
-               % Real Time Graph for the distance from the sensor
-               % Only runs for the 12 seconds that the unlock sequence is active
-               % Graph ends when the unlock distance is reached because of the way the code is written
                x = distIN*ones(1,20);
                y = 0:19;
                plot(x,y, 'LineWidth', .5)
@@ -137,8 +135,10 @@ function combination = set_evaluate_combo(a, setting_combo, combination, NUM_COM
            end
            % Unlock the door (Green LED)
            writeDigitalPin(a, 'D7', 1);
+           writeDigitalPin(a,'D4',1)
            % Pause and then relock the door
-           pause(1)
+           pause(5)
+           writeDigitalPin(a,'D4',0)
            writeDigitalPin(a, 'D7', 0);
            
        else
