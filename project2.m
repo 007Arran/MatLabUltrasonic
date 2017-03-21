@@ -61,10 +61,11 @@ function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES)
            correct_combo = false;
            num_incorrect_attempts = num_incorrect_attempts + 1;
            if num_incorrect_attempts > 2
+              num_incorrect_attempts = 0;
               disp('Too many wrong attempts. Please try again in three minutes.');
-              for i=180:0 % wait three minutes
+              for i=0:180 % wait three minutes
                   pause(1);
-                  fprintf('%d seconds remaining', i);
+                  fprintf('%d seconds waited\n', i);
               end
            end
        end
