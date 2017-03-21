@@ -117,6 +117,16 @@ function combination = set_evaluate_combo(a, setting_combo, combination, NUM_COM
                mDist = readTravelTime(sensor);
                mDist = (mDist*340)/2; % distance in meters
                distIN = mDist/.0254; % distance in inches
+               % Real Time Graph for the distance from the sensor
+               % Only runs for the 12 seconds that the unlock sequence is active
+               % Graph ends when the unlock distance is reached because of the way the code is written
+               x = distIN*ones(1,20);
+               y = 0:19;
+               plot(x,y, 'LineWidth', .5)
+               xlim([0 10]);
+               ylim([0 10]);
+               xlabel('Distance from Sensor in inches')
+               drawnow;
                % Break the loop if unlocked
                if distIN < 5 && distIN > 1
                    break;
