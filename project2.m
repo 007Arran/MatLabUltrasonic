@@ -9,7 +9,7 @@ function project2
         a = arduino('COM3', 'Uno', 'Libraries', 'JrodrigoTech/HCSR04');
     end
     
-    % Test to see if there is already a combo, if not then set to 0000
+    % Test to see if there is already a combo, if not then set to all zeros
     if ~exist('combination','var')
         combination = zeros(1, NUM_COMBO_VALUES);
     end
@@ -21,6 +21,7 @@ end
 
 function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES)
     % Combo is incorrect until it is
+    num_incorrect_attempts = 0;
     correct_combo = false;
     % Infinite loop for testing at all times
     while(true)
@@ -58,6 +59,14 @@ function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES)
            end
        else
            correct_combo = false;
+           num_incorrect_attempts = num_incorrect_attempts + 1;
+           if num_incorrect_attempts > 2
+              disp('Too many wrong attempts. Please try again in three minutes.');
+              for i=180:0 % wait three minutes
+                  pause(1);
+                  fprintf('%d seconds remaining', i);
+              end
+           end
        end
     end
 end
