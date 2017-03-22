@@ -97,6 +97,7 @@ function combination = set_evaluate_combo(a, setting_combo, combination, NUM_COM
             end
         end
         
+        % Made with help from eewriter on EEStuffs.com
         % Time for each value of the combination
         tmax = 1.5; 
         % Creating and labeling the plot
