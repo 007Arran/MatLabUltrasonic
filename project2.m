@@ -3,6 +3,7 @@ function project2
     NUM_COMBO_VALUES = 6;
     TIME_BETWEEN_COMBO_VALUES = 1.5;
     file = 'results.txt';
+    file = fopen('results.txt','w');
 
     % setup arduino
     if ~exist('a','var')
@@ -17,10 +18,10 @@ function project2
     configurePin(a, 'D12', 'pullup');
     
     % Start the unlocking sequence
-    main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES, results);
+    main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES, file);
 end
 
-function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES, results)
+function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES, file)
     total_incorrect_attempts = 0;
     total_correct_attempts = 0;
 
@@ -70,7 +71,7 @@ function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES, 
            if num_incorrect_attempts > 2
               num_incorrect_attempts = 0;
               disp('Too many wrong attempts. Please try again in three minutes.');
-              fprintf(results, 'Lockout initiated/n');
+              fprintf(file, 'Lockout initiated/n');
               for i=0:180 % wait three minutes
                   pause(1);
                   fprintf('%d seconds waited\n', i);
@@ -78,9 +79,9 @@ function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES, 
            end
        end
        % print stat-keeping information at the end of each iteration
-       fprintf(results, 'Current combination: ');
-       fprintf(results, '%d', combination);
-       fprintf(results, '\nTotal correct attempts: %d, total incorrect attempts: %d\n', total_correct_attempts, total_incorrect_attempts);
+       fprintf(file, 'Current combination: ');
+       fprintf(file, '%d', combination);
+       fprintf(file, '\nTotal correct attempts: %d, total incorrect attempts: %d\n', total_correct_attempts, total_incorrect_attempts);
     end
 end
 
