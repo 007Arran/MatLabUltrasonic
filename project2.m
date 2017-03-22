@@ -96,7 +96,36 @@ function combination = set_evaluate_combo(a, setting_combo, combination, NUM_COM
                 correct_combo = false;
             end
         end
+        
+        % Time for each value of the combination
+        tmax = 1.5; 
+        % Creating and labeling the plot
+        figure(1),
+        xlabel ('Time (s)'), ylabel('Voltage');
+        axis([0 2 -.25 6]);
+
+        % setting starting values
+        k = 0;  %index
+        v = 0;  %voltage
+        t = 0;  %time
+
+        tic % Start timer
+        while toc <= tmax
+            k = k + 1;
+            v(k) = readVoltage(a,'A0');
+            t(k) = toc;
+
+            % Plotting the Data
+            if k > 1
+                line([t(k-1) t(k)],[v(k-1) v(k)]);
+                drawnow;
+            end
+
+        end
+
         disp(voltage);
+        % Clear the figure after each number inputted
+        clf;
         i = i + 1;
 
         % Blue LED
@@ -137,7 +166,7 @@ function combination = set_evaluate_combo(a, setting_combo, combination, NUM_COM
            writeDigitalPin(a, 'D7', 1);
            writeDigitalPin(a,'D4',1)
            % Pause and then relock the door
-           pause(5)
+           pause(10)
            writeDigitalPin(a,'D4',0)
            writeDigitalPin(a, 'D7', 0);
            
