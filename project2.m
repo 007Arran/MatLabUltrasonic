@@ -2,6 +2,7 @@
 function project2
     NUM_COMBO_VALUES = 6;
     TIME_BETWEEN_COMBO_VALUES = 1.5;
+    file = 'results.txt';
 
     % setup arduino
     if ~exist('a','var')
@@ -16,12 +17,16 @@ function project2
     configurePin(a, 'D12', 'pullup');
     
     % Start the unlocking sequence
-    main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES);
+    main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES, results);
 end
 
-function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES)
-    % Combo is incorrect until it is
+function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES, results)
+    total_incorrect_attempts = 0;
+    total_correct_attempts = 0;
+
     num_incorrect_attempts = 0;
+    % Combo is set to incorrect by default; it must be verified to become
+    % correct
     correct_combo = false;
     % Infinite loop for testing at all times
     while(true)
@@ -55,20 +60,27 @@ function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES)
            if setting_combo
                combination = new_combo; % set the new combo
            else
+               total_correct_attempts = total_correct_attempts + 1;
                correct_combo = true; % accept credentials
            end
        else
            correct_combo = false;
+           total_incorrect_attempts = total_incorrect_attempts + 1;
            num_incorrect_attempts = num_incorrect_attempts + 1;
            if num_incorrect_attempts > 2
               num_incorrect_attempts = 0;
               disp('Too many wrong attempts. Please try again in three minutes.');
+              fprintf(results, 'Lockout initiated/n');
               for i=0:180 % wait three minutes
                   pause(1);
                   fprintf('%d seconds waited\n', i);
               end
            end
        end
+       % print stat-keeping information at the end of each iteration
+       fprintf(results, 'Current combination: ');
+       fprintf(results, '%d', combination);
+       fprintf(results, '\nTotal correct attempts: %d, total incorrect attempts: %d\n', total_correct_attempts, total_incorrect_attempts);
     end
 end
 
