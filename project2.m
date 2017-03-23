@@ -2,6 +2,7 @@
 function project2
     NUM_COMBO_VALUES = 6;
     TIME_BETWEEN_COMBO_VALUES = 1.5;
+    % Create and open a results file for data logging
     file = 'results.txt';
     file = fopen('results.txt','w');
 
@@ -22,10 +23,11 @@ function project2
 end
 
 function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES, file)
+    % Attempt counts for the data file
     total_incorrect_attempts = 0;
     total_correct_attempts = 0;
-
     num_incorrect_attempts = 0;
+    
     % Combo is set to incorrect by default; it must be verified to become
     % correct
     correct_combo = false;
@@ -48,7 +50,7 @@ function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES, 
            end
        end
        
-       % Display combo setting or credential verification
+       % Display combo setting if button has been held down long enough, else start credential verification
        if setting_combo
            disp('Setting combo');
        else
@@ -61,10 +63,12 @@ function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES, 
            if setting_combo
                combination = new_combo; % set the new combo
            else
+               % Tally correct attempts and accept credentials
                total_correct_attempts = total_correct_attempts + 1;
                correct_combo = true; % accept credentials
            end
        else
+           % Tally incorrect attempts and lock out user if wrong too many times
            correct_combo = false;
            total_incorrect_attempts = total_incorrect_attempts + 1;
            num_incorrect_attempts = num_incorrect_attempts + 1;
@@ -85,7 +89,7 @@ function main_loop(a, combination, NUM_COMBO_VALUES, TIME_BETWEEN_COMBO_VALUES, 
     end
 end
 
-% Used in setting combo, will not change
+% Used for setting a combo
 function command_given = read_combo_command(a)
     button_pressed = readDigitalPin(a, 'D12');
     if button_pressed == 1
@@ -100,10 +104,13 @@ function combination = set_evaluate_combo(a, setting_combo, combination, NUM_COM
     i = 1;
     correct_combo = true;
     while(i < NUM_COMBO_VALUES + 1)
-        pause(TIME_BETWEEN_COMBO_VALUES);   
+        pause(TIME_BETWEEN_COMBO_VALUES);
+        % Read voltage from potentiometer for combo number
         voltage = floor(readVoltage(a, 'A0'));
+        % Save the new combination
         if setting_combo
             combination(i) = voltage;
+        % Test if each number matches the combination
         else
             if (voltage ~= combination(i))
                 correct_combo = false;
@@ -111,6 +118,7 @@ function combination = set_evaluate_combo(a, setting_combo, combination, NUM_COM
         end
         
         % Made with help from eewriter on EEStuffs.com
+        % Plotting the real time data for the potentiometer
         % Time for each value of the combination
         tmax = 1.5; 
         % Creating and labeling the plot
@@ -142,7 +150,7 @@ function combination = set_evaluate_combo(a, setting_combo, combination, NUM_COM
         clf;
         i = i + 1;
 
-        % Blue LED
+        % Light Blue LED when number for combo is read
         writeDigitalPin(a, 'D11', 1);
         pause(0.1);
         writeDigitalPin(a, 'D11', 0);
@@ -151,18 +159,20 @@ function combination = set_evaluate_combo(a, setting_combo, combination, NUM_COM
     if ~setting_combo
        if correct_combo
            disp('Credentials accepted');
-           % Set up the sensor
+           % Set up the Ultrasonic sensor
            sensor = addon(a, 'JRodrigoTech/HCSR04', 'D2', 'D3');
-           % Give user 5 seconds to unlock door
+           % Set time variable used below
            t = 0;
-               
+           % Give user 5.5 seconds to unlock door
            while t < 12
                % Get distance in inches
                mDist = readTravelTime(sensor);
                mDist = (mDist*340)/2; % distance in meters
                distIN = mDist/.0254; % distance in inches
+               % Create things to plot
                x = distIN*ones(1,20);
                y = 0:19;
+               % Plot the Ultrasonic Sensor's Data
                plot(x,y, 'LineWidth', .5)
                xlim([0 10]);
                ylim([0 10]);
@@ -176,14 +186,14 @@ function combination = set_evaluate_combo(a, setting_combo, combination, NUM_COM
                pause(0.5)
                t = t+1;
            end
-           % Unlock the door (Green LED)
+           % Unlock the door and light the Green LED
            writeDigitalPin(a, 'D7', 1);
            writeDigitalPin(a,'D4',1)
-           % Pause and then relock the door
+           % Pause and then relock the door and turn off Green LED
            pause(10)
            writeDigitalPin(a,'D4',0)
            writeDigitalPin(a, 'D7', 0);
-           
+       % If credentials are wrong    
        else
            disp('Credentials rejected');
            combination(1) = -1; % set the first integer to -1 as an error code
@@ -196,6 +206,7 @@ function combination = set_evaluate_combo(a, setting_combo, combination, NUM_COM
            end
            
        end
+    % If user was setting combination, display that it was correctly saved
     else
         disp('Credentials set');
     end
